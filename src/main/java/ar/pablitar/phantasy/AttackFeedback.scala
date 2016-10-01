@@ -20,8 +20,8 @@ class AttackFeedback(a: AttackResult) extends RichGameComponent[PhantasyScene] {
   
   def t = animationProgress.currentValue
   
-  def scale = 3 - t * 2.5
-  def distanceOffset = Vector2D(t * 2, -4 * t + 5 * t * t) * 100
+  def scale = 1 + 5 * t - t * t * 5
+  def distanceOffset = Vector2D(t * 2, -5 * t + 8 * t * t * t) * 100
   def alpha = (1 - t).toFloat
   
   this.setAppearance(LabelUtils.damageText(text, color))
