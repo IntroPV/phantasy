@@ -4,6 +4,7 @@ import scala.util.Random
 
 import Stat._
 import Attribute._
+import scala.collection.mutable.ArrayBuffer
 
 trait Stat {
   def calculateBase(war: Warrior): Double
@@ -48,8 +49,15 @@ object Stat {
       (war.attributes(Luck) + war.attributes(Agility) / 5) / 100
     }
   }
+  
+  case object MaxLife extends Stat {
+    def calculateBase(war: Warrior): Double = {
+      val ct = war.attributes(Constitution)
+      ct * ct * 10 + war.attributes(Strength) * 10
+    }
+  }
 
-  val allStats = Seq(HitRatio, MinDamage, MaxDamage, Defense, Evasion, CriticalRatio)
+  val allStats = Seq(HitRatio, MinDamage, MaxDamage, Defense, Evasion, CriticalRatio, MaxLife)
 }
 
 trait Attribute
@@ -74,6 +82,10 @@ class Warrior(val name: String) {
     Luck -> (Random.nextInt(10) + 10))
 
   println(name + ": " + baseAttributes)
+  
+  val consumables = ArrayBuffer.empty[Consumable]
+  
+  var life = calculate(MaxLife) 
   
   allStats.foreach { s =>
     println(s"\t$s -> ${calculate(s)}")
@@ -139,5 +151,9 @@ class Warrior(val name: String) {
 
   def baseDefense = {
     8
+  }
+
+  def receive(hit: Hit) = {
+    this.life = (this.life - hit.damage).max(0)
   }
 }
