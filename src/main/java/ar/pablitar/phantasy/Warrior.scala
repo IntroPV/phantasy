@@ -5,6 +5,7 @@ import scala.util.Random
 import Stat._
 import Attribute._
 import scala.collection.mutable.ArrayBuffer
+import org.apache.commons.math3.distribution.NormalDistribution
 
 trait Stat {
   def calculateBase(war: Warrior): Double
@@ -49,7 +50,7 @@ object Stat {
       (war.attributes(Luck) + war.attributes(Agility) / 5) / 100
     }
   }
-  
+
   case object MaxLife extends Stat {
     def calculateBase(war: Warrior): Double = {
       val ct = war.attributes(Constitution)
@@ -82,11 +83,11 @@ class Warrior(val name: String) {
     Luck -> (Random.nextInt(10) + 10))
 
   println(name + ": " + baseAttributes)
-  
+
   val consumables = ArrayBuffer.empty[Consumable]
-  
-  var life = calculate(MaxLife) 
-  
+
+  var life = calculate(MaxLife)
+
   allStats.foreach { s =>
     println(s"\t$s -> ${calculate(s)}")
   }
@@ -110,7 +111,13 @@ class Warrior(val name: String) {
     def minDamage = calculate(MinDamage)
     def maxDamage = calculate(MaxDamage)
 
-    val thisHitDamage = (Random.nextDouble() * (maxDamage - minDamage) + minDamage) * (if (critical) 2 else 1)
+    val mean = (maxDamage + minDamage) / 2
+
+    val normalDistribution = new NormalDistribution(mean, mean / 10)
+
+    //    val thisHitDamage = (Random.nextDouble() * (maxDamage - minDamage) + minDamage) * (if (critical) 2 else 1)
+
+    val thisHitDamage = normalDistribution.sample() * (if (critical) 2 else 1)
 
     (thisHitDamage - defender.calculate(Defense)).max(0).toInt
   }
